@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-
-from routers import redisai
+from routers import test
+from sqlapp import main
 
 app = FastAPI()
 
-
-@app.get("/")
+@app.get('/')
 def root():
-    return "소득예측모델"
+    return "Welcome to gume-gume"
 
-app.include_router(router=redisai.router)
+app.include_router(router=test.router)
+app.include_router(router=main.router) 
