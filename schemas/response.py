@@ -1,9 +1,7 @@
+from fastapi import FastAPI
 from pydantic import BaseModel
-
 from schemas.request import RequestBody
 
-
 class ResponseBody(BaseModel):
-    param1: str
-    param2: int
+    id: str
     body: RequestBody
