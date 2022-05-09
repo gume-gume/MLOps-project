@@ -7,6 +7,6 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return "소득예측모델"
+    return "hello world"
 
 app.include_router(router=redisai.router)
