@@ -3,12 +3,13 @@ from fastapi import APIRouter,status, HTTPException
 from pydantic import BaseModel
 from typing import List
 from .database import SessionLocal
-from sqlapp.models import People
+from .models import People_Table
 
 router = APIRouter()
 
 class People(BaseModel):
     id : int
+    age : int
     workclass : str
     fnlwgt : int
     education : str
@@ -29,24 +30,30 @@ class People(BaseModel):
         orm_mode = True
 
 db = SessionLocal()
-print('db', db)
 
-@router.get('/incomes', response_model=List[People],status_code=200)
+
+# @router.get('/incomes', response_model=People,status_code=200)
+# def get_all_incomes():
+#     incomes = db.query(People_Table).all()
+#     print( 'income ',incomes)    
+#     return incomes
+
+@router.get('/incomes')
 def get_all_incomes():
-    incomes = db.query(People).all()
+    incomes = db.query(People_Table).all()
+    print( 'income ',incomes)    
     return incomes
 
 @router.get('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
 def get_an_income(income_id:int):
     try:
-        # income = db.query(People).filter(People.id == income_id).first()
-        income = db.query(People)
+        income = db.query(People_Table).filter(People_Table.id == income_id).first()
         return income
     except Exception as err:
         print( 'err',err)
         return err
 
-@router.post('/incomes',response_model=People, status_code=status.HTTP_201_CREATED)
+@router.post('/create_income',response_model=People)
 def create_an_income(income:People):
     new_income = People(
         workclass = income.workclass,
@@ -69,30 +76,30 @@ def create_an_income(income:People):
 
     return new_income
 
-@router.put('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
-def update_an_income(income_id:int,income:People):
-    income_to_update = db.query(People).filter(People.id == income_id).first()
-    income_to_update.workclass  = income.workclass
-    income_to_update.fnlwgt  = income.fnlwgt
-    income_to_update.education  = income.education
-    income_to_update.education_num  = income.education_num
-    income_to_update.marital_status  = income.marital_status
-    income_to_update.occupation  = income.occupation
-    income_to_update.relationship  = income.relationship
-    income_to_update.race  = income.race
-    income_to_update.sex  = income.sex
-    income_to_update.capital_gain  = income.capital_gain
-    income_to_update.capital_loss  = income.capital_loss
-    income_to_update.hours_per_week  = income.hours_per_week
-    income_to_update.native_country  = income.native_country
+# @router.put('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
+# def update_an_income(income_id:int,income:People):
+#     income_to_update = db.query(People).filter(People.id == income_id).first()
+#     income_to_update.workclass  = income.workclass
+#     income_to_update.fnlwgt  = income.fnlwgt
+#     income_to_update.education  = income.education
+#     income_to_update.education_num  = income.education_num
+#     income_to_update.marital_status  = income.marital_status
+#     income_to_update.occupation  = income.occupation
+#     income_to_update.relationship  = income.relationship
+#     income_to_update.race  = income.race
+#     income_to_update.sex  = income.sex
+#     income_to_update.capital_gain  = income.capital_gain
+#     income_to_update.capital_loss  = income.capital_loss
+#     income_to_update.hours_per_week  = income.hours_per_week
+#     income_to_update.native_country  = income.native_country
 
-    db.commit()
+#     db.commit()
 
-    return income_to_update
+#     return income_to_update
 
-@router.delete('income/{income_id}')
+@router.delete('incomes/{income_id}')
 def delete_income(income_id:int):
-    income_to_delete = db.query(People).filter(People.id == income_id).first()
+    income_to_delete = db.query(People_Table).filter(People_Table.id == income_id).first()
 
     if income_to_delete is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='Resource Not Found')
