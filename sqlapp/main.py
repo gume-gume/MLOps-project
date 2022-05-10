@@ -1,3 +1,4 @@
+from tkinter import NO
 from fastapi import APIRouter,status, HTTPException
 from pydantic import BaseModel
 from typing import List
@@ -28,21 +29,24 @@ class People(BaseModel):
         orm_mode = True
 
 db = SessionLocal()
+print('db', db)
 
 @router.get('/incomes', response_model=List[People],status_code=200)
 def get_all_incomes():
     incomes = db.query(People).all()
-
     return incomes
 
-@router.get('/income/{income_id}',response_model=People,
-             status_code=status.HTTP_200_OK)
+@router.get('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
 def get_an_income(income_id:int):
-    income = db.query(People).filter(People.id == income_id).first()
-    return income
+    try:
+        # income = db.query(People).filter(People.id == income_id).first()
+        income = db.query(People)
+        return income
+    except Exception as err:
+        print( 'err',err)
+        return err
 
-@router.post('/incomes',response_model=People,
-             status_code=status.HTTP_201_CREATED)
+@router.post('/incomes',response_model=People, status_code=status.HTTP_201_CREATED)
 def create_an_income(income:People):
     new_income = People(
         workclass = income.workclass,
@@ -65,8 +69,7 @@ def create_an_income(income:People):
 
     return new_income
 
-@router.put('/income/{income_id}',response_model=People,
-             status_code=status.HTTP_200_OK)
+@router.put('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
 def update_an_income(income_id:int,income:People):
     income_to_update = db.query(People).filter(People.id == income_id).first()
     income_to_update.workclass  = income.workclass
