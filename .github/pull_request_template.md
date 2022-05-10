@@ -1,19 +1,17 @@
-Why did you change the code?
+1. 코드 설명(...)
+
+
+
+2. 집중할 부분(...)
+
+
+
+3. 스크린샷(optional)
 
 
 
 
-What risks or obstacles have been discovered?
+4. 리뷰어에게 하고싶은 말(optional)
 
 
 
-Which part should the reviewer focus on?
-
-
-
-Related Screenshots
-
-
-
-
-Test plan or completion
