@@ -1,7 +1,22 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
-from schemas.request import RequestBody
+class People(BaseModel):
+    id : int
+    age : int
+    workclass : str
+    fnlwgt : int
+    education : str
+    education_num : int
+    marital_status : str
+    occupation : str
+    relationship : str
+    race : str
+    sex : str
+    capital_gain : int
+    capital_loss : int
+    hours_per_week : int
+    native_country : str
+    
+    target : int
 
-class ResponseBody(BaseModel):
-    id: str
-    body: RequestBody
+    class Config:
+        orm_mode = True
