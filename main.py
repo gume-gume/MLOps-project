@@ -1,16 +1,16 @@
 from fastapi import FastAPI
-from routers import id
-from routers import redisai
+from routers import redisai, db
+
+
+
 
 app = FastAPI()
 
 @app.get('/')
-def hello():
-    return "소득예측모델"
+def root():
+    return "Welcome to gume-gume"
 
-app.include_router(router=id.router)
+app.include_router(router=db.router) 
 app.include_router(router=redisai.router)
-
-
 
 
