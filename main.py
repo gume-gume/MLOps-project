@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from routers import redisai, db
 
-
-
-
 app = FastAPI()
 
 @app.get('/')
