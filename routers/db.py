@@ -1,10 +1,8 @@
-# 라우터로~
-from tkinter import NO
-from fastapi import APIRouter,status
+from fastapi import APIRouter
 from DB.database import SessionLocal
-from DB.models import People_Table
-from schemas.response import People
-
+import psycopg2
+import pandas as pd
+import numpy as np
 
 router = APIRouter()
 
@@ -12,16 +10,12 @@ db = SessionLocal()
 
 @router.get('/incomes')
 def get_all_incomes():
-    incomes = db.query(People_Table).all()
-    print( 'income ',incomes)    
-    return incomes
-
-
-@router.get('/income/{income_id}',response_model=People, status_code=status.HTTP_200_OK)
-def get_an_income(income_id:int):
-    try:
-        income = db.query(People_Table).filter(People_Table.id == income_id).first()
-        return income
-    except Exception as err:
-        print( 'err',err)
-        return err
+    conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = '1234'"
+    conn = psycopg2.connect(conn_string)
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM people_income;')
+    result = np.array(cur.fetchall())
+    my_df = pd.DataFrame(result)
+    my_df.columns = [desc[0] for desc in cur.description]   
+    print(my_df)
+    return my_df
