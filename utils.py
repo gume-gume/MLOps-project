@@ -7,7 +7,7 @@ from skl2onnx.common.data_types import FloatTensorType
 from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score#, roc_auc_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
@@ -43,11 +43,6 @@ def predict(client, model_key, item):
     return client.tensorget("output_tensor_class")
 
 ###############################################################
-def read_data():
-    data=pd.read_csv('data/train.csv')
-    return data
-
-
 def preprocessing(data):
     data['native.country']=data['native.country'].fillna('United-States')
     data["fnlwgt"] = np.log1p(data["fnlwgt"])
@@ -55,8 +50,33 @@ def preprocessing(data):
     return data
 
 
+def data_split(data, size=0.25):
 
-def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, scoring='accuracy'):
+    y = data.loc[:,"target"]
+    X = data.drop("target", axis = 1)
+    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=size, random_state=1234,stratify=y)
+    return X_train, X_test, y_train, y_test
+
+
+def labeling(data, newdata):
+    nominals=[key for key, value in data.dtypes.items() if value==object] #object타입의 데이터 list
+    for ord in nominals:
+        le = LabelEncoder()
+        le.fit(data[ord])
+        data[ord] = le.transform(data[ord])#규칙적용
+        prev_class = list(le.classes_)#컬럼내 유니크한 값 list
+
+        for label in np.unique(newdata[ord]):
+            if label not in prev_class: #unseendata 확인 후 없으면 추가
+                prev_class.append(label)
+
+        le.classes_ = np.array(prev_class)
+        newdata[ord] = le.transform(newdata[ord])#새로 수정된 규칙으로 적용
+    return data, newdata
+
+
+
+def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accuracy'):
     kfold = KFold(n_splits = n_splits, random_state=1234,shuffle=True )
 
     def objective(trial):
@@ -70,13 +90,35 @@ def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, scoring='accurac
         }
         rf = RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
 
-        scores = cross_val_score(rf, X_train, y_train, cv=kfold, scoring=scoring)
+        scores = cross_val_score(rf, X_train, y_train, cv=kfold, scoring=measure)
         acc_mean = scores.mean()
         return acc_mean
     sampler = TPESampler(**TPESampler.hyperopt_parameters())
     study = optuna.create_study(direction="maximize" ,sampler=sampler)
     study.optimize(objective, n_trials=n_trials)
-    rf_params=study.best_trial.params 
-    
-    return rf_params
+    params=study.best_trial.params 
+    return params
 
+
+
+def model_predict(params, X_train,y_train):
+    model=RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
+    model.fit(X_train, y_train)
+    pred = model.predict(X_train)
+    return pred
+
+
+def model_scoring(params, X_train, y_train, pred, measure='accuracy'):
+    pred=model_predict(params, X_train,y_train)
+    
+    scores={}
+    scores['accuracy']=accuracy_score(y_train, pred)
+    scores['recall']=recall_score(y_train, pred)
+    scores['precision']=precision_score(y_train, pred)
+    scores['f1']=f1_score(y_train, pred)
+    return scores[measure]
+
+
+def model_save(model):
+    joblib.dump(model, 'model.pkl',compress=3)
+  
