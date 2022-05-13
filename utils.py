@@ -7,7 +7,7 @@ from skl2onnx.common.data_types import FloatTensorType
 from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score#, roc_auc_score
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
@@ -44,8 +44,8 @@ def predict(client, model_key, item):
 
 ###############################################################
 def preprocessing(data):
-    data['native.country']=data['native.country'].fillna('United-States')
-    data["fnlwgt"] = np.log1p(data["fnlwgt"])
+    data['native_country']=data['native_country'].fillna('United-States')
+    # data["fnlwgt"] = np.log1p(data["fnlwgt"])
     data.dropna(inplace=True)
     return data
 
@@ -53,6 +53,7 @@ def preprocessing(data):
 def data_split(data, size=0.25):
 
     y = data.loc[:,"target"]
+    y = y.astype('int')
     X = data.drop("target", axis = 1)
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=size, random_state=1234,stratify=y)
     return X_train, X_test, y_train, y_test
@@ -118,7 +119,5 @@ def model_scoring(params, X_train, y_train, pred, measure='accuracy'):
     scores['f1']=f1_score(y_train, pred)
     return scores[measure]
 
-
 def model_save(model):
     joblib.dump(model, 'model.pkl',compress=3)
-  
