@@ -1,12 +1,12 @@
 from fastapi import APIRouter
-from DB.database import SessionLocal
+from config.database import SessionLocal
 import psycopg2
 import pandas as pd
 import numpy as np
 
 from schemas.request import IncomeBody
 import redisai as rai
-from utils import *
+from utils.util import *
 
 client = None
 
@@ -22,7 +22,7 @@ def start_up():
 # connection 재사용하는 방법 connection pool setting
 # get->post
 @router.post('/production')
-def produce_model():
+async def produce_model():
     conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = '1234'"
     conn = psycopg2.connect(conn_string)
     cur = conn.cursor()
@@ -43,7 +43,9 @@ def produce_model():
 
 
 @router.post("/income/predict")
-def predict_income(item: IncomeBody):
+async def predict_income(item: IncomeBody):
+    print('sibal')
+    
     if not client.exists("model"):
         load_model(client, "model")
 

@@ -1,4 +1,4 @@
-from .database import Base
+from config.database import Base
 from sqlalchemy import String,Integer,Column
 
 class People_Table(Base):
