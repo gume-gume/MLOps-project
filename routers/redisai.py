@@ -17,7 +17,7 @@ db = SessionLocal()
 @router.on_event("startup")
 def start_up():
     global client
-    client = rai.Client(host="localhost", port=6379)
+    client = rai.Client(host="localhost", port=6379, health_check_interval=30)
 
 # connection 재사용하는 방법 connection pool setting
 # get->post
@@ -29,15 +29,15 @@ def produce_model():
     cur.execute('SELECT * FROM people_income;')
     result = np.array(cur.fetchall())
     income_df = pd.DataFrame(result)
-    income_df.columns = [desc[0] for desc in cur.description]   
+    income_df.columns = [desc[0] for desc in cur.description]
 
     income_df = preprocessing(income_df)
     X_train, X_test, y_train, y_test = data_split(income_df)
     X_train, X_test = labeling(X_train, X_test)
     print(X_train.info())
-    params = rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accuracy')
+    params = rf_optimization(X_train, y_train, n_trials=3,  n_splits=2, measure='accuracy')
     pred = model_predict(params, X_train,y_train)
-    
+
     return model_save(pred)
 
 
@@ -50,3 +50,9 @@ def predict_income(item: IncomeBody):
     result = predict(client, "model", item)
 
     return result.tolist()
+
+
+#프로파일링
+import cProfile
+import re
+cProfile.run('re.compile("produce_model|predict_income")')
