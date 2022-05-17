@@ -42,7 +42,7 @@ def produce_model(n_trial: int, n_split:int, scoring : str):
 
 @router.post("/income/predict")
 def predict_income(item: IncomeBody):
-    print('hello...............')
+
     if not client.exists("model"):
         load_model(client, "model")
 

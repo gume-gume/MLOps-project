@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 class People(BaseModel):
     id : int
     age : int
