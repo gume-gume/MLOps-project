@@ -17,7 +17,6 @@ class IncomeBody(BaseModel):
     hours_per_week : int
     native_country : int
 
-
 class MakeModel(BaseModel):
     n_trial : int
     n_split : int

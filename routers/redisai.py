@@ -18,7 +18,7 @@ db = SessionLocal()
 @router.on_event("startup")
 def start_up():
     global client
-    client = rai.Client(host="localhost", port=6379)
+    client = rai.Client(host="localhost", port=6379, health_check_interval=30)
 
 @router.post('/production')
 def produce_model(n_trial: int, n_split:int, scoring : str):
@@ -35,7 +35,8 @@ def produce_model(n_trial: int, n_split:int, scoring : str):
     X_train, X_test = labeling(X_train, X_test)
     params = rf_optimization(X_train, y_train, n_trials={n_trial},  n_splits={n_split}, measure={scoring})
     pred = model_predict(params, X_train,y_train)
-
+    params = rf_optimization(X_train, y_train, n_trials=3,  n_splits=2, measure='accuracy')
+    pred = model_predict(params, X_train,y_train)
     return model_save(pred)
 
 
@@ -47,3 +48,9 @@ def predict_income(item: IncomeBody):
 
     result = predict(client, "model", item)
     return result.tolist()
+
+
+#프로파일링
+import cProfile
+import re
+cProfile.run('re.compile("produce_model|predict_income")')

@@ -15,7 +15,7 @@ class People(BaseModel):
     capital_loss : int
     hours_per_week : int
     native_country : str
-    
+
     target : int
 
     class Config:

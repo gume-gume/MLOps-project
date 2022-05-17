@@ -19,7 +19,7 @@ class People_Table(Base):
     capital_loss = Column(Integer)
     hours_per_week = Column(Integer)
     native_country = Column(String(40))
-    
+
     target = Column(Integer)
 
     def __repr__(self):
@@ -30,8 +30,4 @@ class People_Table(Base):
                   occupation = {self.occupation} relationship = {self.relationship} \
                   race = {self.race} sex = {self.sex} \
                   capital_gain = {self.capital_gain} capital_loss = {self.capital_loss} \
-                  hours_per_week = {self.hours_per_week} native_country = {self.native_country} >' 
-
-
-
-
+                  hours_per_week = {self.hours_per_week} native_country = {self.native_country} >'
