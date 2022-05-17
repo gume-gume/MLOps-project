@@ -15,8 +15,6 @@ from sklearn.model_selection import train_test_split
 import optuna
 from optuna.samplers import TPESampler
 
-
-
 def load_model(client, model_key):
     model = joblib.load("rf_income.pkl")
     initial_type = [("input", FloatTensorType([None, 14]))]
@@ -30,7 +28,7 @@ def load_model(client, model_key):
 def predict(client, model_key, item):
     client.tensorset(
         "input_tensor",
-        np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship, 
+        np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
         item.race, item.sex,item.capital_gain,item.capital_loss,item.hours_per_week,item.native_country]], dtype=np.float32),
     )
     client.modelrun(
@@ -76,7 +74,6 @@ def labeling(data, newdata):
     return data, newdata
 
 
-
 def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accuracy'):
     kfold = KFold(n_splits = n_splits, random_state=1234,shuffle=True )
 
@@ -97,9 +94,8 @@ def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accurac
     sampler = TPESampler(**TPESampler.hyperopt_parameters())
     study = optuna.create_study(direction="maximize" ,sampler=sampler)
     study.optimize(objective, n_trials=n_trials)
-    params=study.best_trial.params 
+    params=study.best_trial.params
     return params
-
 
 
 def model_predict(params, X_train,y_train):
@@ -111,7 +107,7 @@ def model_predict(params, X_train,y_train):
 
 def model_scoring(params, X_train, y_train, pred, measure='accuracy'):
     pred=model_predict(params, X_train,y_train)
-    
+
     scores={}
     scores['accuracy']=accuracy_score(y_train, pred)
     scores['recall']=recall_score(y_train, pred)

@@ -16,3 +16,9 @@ class IncomeBody(BaseModel):
     capital_loss: int
     hours_per_week : int
     native_country : int
+
+
+class MakeModel(BaseModel):
+    n_trial : int
+    n_split : int
+    scoring : str
