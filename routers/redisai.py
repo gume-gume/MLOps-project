@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,FastAPI
 from DB.database import SessionLocal
 import psycopg2
 import pandas as pd
@@ -10,6 +10,7 @@ from utils import *
 
 client = None
 
+app = FastAPI()
 router = APIRouter()
 
 db = SessionLocal()
@@ -19,10 +20,8 @@ def start_up():
     global client
     client = rai.Client(host="localhost", port=6379, health_check_interval=30)
 
-# connection 재사용하는 방법 connection pool setting
-# get->post
 @router.post('/production')
-def produce_model():
+def produce_model(n_trial: int, n_split:int, scoring : str):
     conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = '1234'"
     conn = psycopg2.connect(conn_string)
     cur = conn.cursor()
@@ -34,21 +33,20 @@ def produce_model():
     income_df = preprocessing(income_df)
     X_train, X_test, y_train, y_test = data_split(income_df)
     X_train, X_test = labeling(X_train, X_test)
-    print(X_train.info())
+    params = rf_optimization(X_train, y_train, n_trials={n_trial},  n_splits={n_split}, measure={scoring})
+    pred = model_predict(params, X_train,y_train)
     params = rf_optimization(X_train, y_train, n_trials=3,  n_splits=2, measure='accuracy')
     pred = model_predict(params, X_train,y_train)
-
     return model_save(pred)
-
 
 
 @router.post("/income/predict")
 def predict_income(item: IncomeBody):
+    print('hello...............')
     if not client.exists("model"):
         load_model(client, "model")
 
     result = predict(client, "model", item)
-
     return result.tolist()
 
 

@@ -15,8 +15,6 @@ from sklearn.model_selection import train_test_split
 import optuna
 from optuna.samplers import TPESampler
 
-
-
 def load_model(client, model_key):
     model = joblib.load("rf_income.pkl")
     initial_type = [("input", FloatTensorType([None, 14]))]
@@ -76,7 +74,6 @@ def labeling(data, newdata):
     return data, newdata
 
 
-
 def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accuracy'):
     kfold = KFold(n_splits = n_splits, random_state=1234,shuffle=True )
 
@@ -99,7 +96,6 @@ def rf_optimization(X_train, y_train, n_trials=10,  n_splits=5, measure='accurac
     study.optimize(objective, n_trials=n_trials)
     params=study.best_trial.params
     return params
-
 
 
 def model_predict(params, X_train,y_train):
