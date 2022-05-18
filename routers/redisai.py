@@ -5,8 +5,10 @@ import pandas as pd
 import numpy as np
 
 from schemas.request import IncomeBody
+
 import redisai as rai
 from utils import *
+from errors.service_result import ServiceResult,handle_result
 
 client = None
 
@@ -42,12 +44,10 @@ def produce_model(n_trial: int, n_split:int, scoring : str):
 
 @router.post("/income/predict")
 def predict_income(item: IncomeBody):
-
     if not client.exists("model"):
         load_model(client, "model")
-
-    result = predict(client, "model", item)
-    return result.tolist()
+    result = predict(client, "model", item).tolist()[0]
+    return handle_result(ServiceResult(result))
 
 
 #프로파일링
