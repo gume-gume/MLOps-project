@@ -23,3 +23,28 @@ async def app_exception_handler(request: Request, exc: AppExceptionCase):
             "context": exc.context,
         },
     )
+
+class AppException(object):
+    class LoadModel(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            load model error
+            """
+            status_code = 500
+            AppExceptionCase.__init__(self, status_code, context)
+
+    class ModelKey(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            Prediction error
+            """
+            status_code = 500
+            AppExceptionCase.__init__(self, status_code, context)
+
+    class FooItemRequiresAuth(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            Item is not public and requires auth
+            """
+            status_code = 401
+            AppExceptionCase.__init__(self, status_code, context)

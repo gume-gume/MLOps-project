@@ -15,30 +15,43 @@ from sklearn.model_selection import train_test_split
 import optuna
 from optuna.samplers import TPESampler
 
-def load_model(client, model_key):
-    model = joblib.load("rf_income.pkl")
+from schemas.response import *
+from errors.app_exceptions import AppException
+from errors.service_result import ServiceResult
+from errors.service_result import handle_result
+
+
+def save_model_redisai(client,model_key,model):
     initial_type = [("input", FloatTensorType([None, 14]))]
     onx_model = convert_sklearn(model, initial_types=initial_type)
-
     client.modelstore(
         key=model_key, backend="onnx", device="cpu", data=onx_model.SerializeToString()
-    )
+            )
 
+def load_model(client,model_key,name):
+    try:
+        model = joblib.load(f"{name}.pkl")
+        save_model_redisai(client,model_key,model)
+    except Exception as err:
+       return handle_result(ServiceResult(AppException.LoadModel()))
 
 def predict(client, model_key, item):
-    client.tensorset(
-        "input_tensor",
-        np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
-        item.race, item.sex,item.capital_gain,item.capital_loss,item.hours_per_week,item.native_country]], dtype=np.float32),
-    )
-    client.modelrun(
-        key=model_key,
-        inputs=["input_tensor"],
-        outputs=["output_tensor_class", "output_tensor_prob"],
-    )
-    #client.expire(model_key, 50)
+    try:
+        client.tensorset(
+            "input_tensor",
+            np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
+            item.race, item.sex,item.capital_gain,item.capital_loss,item.hours_per_week,item.native_country]], dtype=np.float32),
+        )
+        client.modelrun(
+            key=model_key,
+            inputs=["input_tensor"],
+            outputs=["output_tensor_class", "output_tensor_prob"],
+        )
+        return ServiceResult(client.tensorget("output_tensor_class").tolist()[0])
+    except:
+        return ServiceResult(AppException.ModelKey())
 
-    return client.tensorget("output_tensor_class")
+    
 
 ###############################################################
 def preprocessing(data):

@@ -20,9 +20,3 @@ async def custom_validation_exception_handler(request, e):
 
 async def custom_app_exception_handler(request, e):
     return await app_exception_handler(request, e)
-
-async def custom_500_handler(request, __):
-    return JSONResponse(
-        status_code=500,
-        content={"message": "500 error..... Run Docker"},
-    )
