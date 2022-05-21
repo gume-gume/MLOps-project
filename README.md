@@ -13,6 +13,8 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 - Income Dataset
 - Perform Binary Classification to predict if Salary is greater than $50K
 
+
+
 ## Phase 0 (2022.05.01 - 2022.05.22)
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
 ![Python3.9.7](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -20,12 +22,30 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-<!-- ![Mlflow](https://img.shields.io/badge/Mlflow-0.13-green) -->
 
-- Scikit-Learn 베이스의 머신러닝 파이프라인 구현  
-- FastAPI를 활용한 Rest API 서버 구현
-- PostgreSQL & Docker를 활용한 데이터베이스 구현
-- Mlflow 및 Minio를 활용한 모델 레지스트리 구현
+
+### 0. 개발환경 세팅
+- git-flow : github flow 채택
+- github에서 사용할 issue와 pr 템플릿 생성
+- pre-commit을 통한 code 스타일 통일
+- python 3.9.7
+- gce를 통해서 unbuntu20.04 서버생성(ssh접속)
+
+### 1. 머신러닝 파이프라인 구축
+- load_model, preprocessing, labeling 등등의 함수 작성
+- issue : joblib라이브러리를 통해서 로컬에 있는 큰 사이즈의 model을 바로 서버에서 로드할 경우 속도 문제 발생 
+
+### 2. PostgreSQL & Docker를 활용한 데이터베이스 구현
+- docker를 통해서 postgreSQL 데이터베이스 세팅
+- postgreSQL에 데이터 적재
+
+### 3. FastAPI를 활용한 Rest API 서버 구현
+- reidsai를 통한 model serving 
+- exception 정의 및 handler 작성
+
+### 4. Mlflow 및 Minio를 활용한 모델 레지스트리 구현
+- mlflow를 통한 모델관리
+- mlflow 와 minio 연동
 
 
 ```bash
