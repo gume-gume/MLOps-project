@@ -19,4 +19,3 @@ def root():
 app.add_exception_handler(StarletteHTTPException, custom_http_exception_handler)
 app.add_exception_handler(RequestValidationError, custom_validation_exception_handler)
 app.add_exception_handler(AppExceptionCase, custom_app_exception_handler)
-app.add_exception_handler(500, custom_500_handler)

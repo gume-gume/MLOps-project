@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class People(BaseModel):
     id : int
@@ -21,3 +22,7 @@ class People(BaseModel):
 
     class Config:
         orm_mode = True
+
+class Item(BaseModel):
+    target : int
+    context : Optional[str] = None

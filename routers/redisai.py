@@ -5,10 +5,11 @@ import pandas as pd
 import numpy as np
 
 from schemas.request import IncomeBody
+from schemas.response import Item
 
 import redisai as rai
 from utils import *
-from errors.service_result import ServiceResult,handle_result
+from errors.service_result import handle_result
 
 client = None
 
@@ -41,13 +42,17 @@ def produce_model(n_trial: int, n_split:int, scoring : str):
     pred = model_predict(params, X_train,y_train)
     return model_save(pred)
 
-
-@router.post("/income/predict")
-def predict_income(item: IncomeBody):
+@router.post("/income/predict",response_model=Item)
+def predict_income(item: IncomeBody, name : str, model_key : str):
     if not client.exists("model"):
-        load_model(client, "model")
-    result = predict(client, "model", item).tolist()[0]
-    return handle_result(ServiceResult(result))
+        load_model(client,"model",name)
+    result = predict(client, f"{model_key}", item)
+    item.target = handle_result(result)
+    if item.target == 1:
+        item.context = "소득이 10만달러 이상"
+    else:
+        item.context = "소득이 10만달러 미만"
+    return item
 
 
 #프로파일링
