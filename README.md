@@ -29,7 +29,7 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 - github에서 사용할 issue와 pr 템플릿 생성
 - pre-commit을 통한 code 스타일 통일
 - python 3.9.7
-- gce를 통해서 unbuntu20.04 서버생성(ssh접속)
+- gcp를 통해서 unbuntu20.04 서버생성(ssh접속)
 
 ### 1. 머신러닝 파이프라인 구축
 - load_model, preprocessing, labeling 등등의 함수 작성
