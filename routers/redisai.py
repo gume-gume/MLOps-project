@@ -1,5 +1,5 @@
 from fastapi import APIRouter,FastAPI
-from DB.database import SessionLocal
+from db.database import SessionLocal
 import psycopg2
 import pandas as pd
 import numpy as np
@@ -8,8 +8,8 @@ from schemas.request import IncomeBody
 from schemas.response import Item
 
 import redisai as rai
-from utils import *
-from errors.service_result import handle_result
+from utils.utils import *
+from service.service_result import handle_result
 
 client = None
 
