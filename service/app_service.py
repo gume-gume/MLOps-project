@@ -150,7 +150,7 @@ class PredictService():
             model = joblib.load(f"{self.file_name}.pkl")
             self.set_model_redisai(model)
             result = True
-        except Exception as err:
+        except Exception as err:         
             result = False
             return result
         return result
@@ -169,16 +169,23 @@ class PredictService():
         return self.client.tensorget("output_tensor_class").tolist()[0]
         
     def predict(self, data):
+        print('data',data)
         result = None
         is_set = False
-        if not self.client.exists("model"):
+        print(self.client.exists('model')) # true : 1
+        if not self.client.exists('model'):####
+            
             is_set = self.load_model()
+            print('is_set',is_set)
+            
         if not is_set:
+            
             return ServiceResult(AppException.LoadModel())
-
+        print('client', self.client , 'modelkey',self.model_key )
         try:
             result = self.model_run(self.client,f'{self.model_key}',data)
         except Exception as err:
+            print('error')
             return ServiceResult(AppException.LoadModel())
 
         return ServiceResult(result)
