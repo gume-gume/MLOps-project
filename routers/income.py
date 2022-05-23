@@ -25,15 +25,13 @@ def produce_model(n_trial: int, n_split:int, scoring : str, db:get_db=Depends())
     result= TrainService(db).train(n_trial=n_trial, n_split=n_split, scoring=scoring )
     return handle_result(result)
 
-
 @router.post("/income/predict",response_model=Item)
-def predict_income(item: IncomeBody, name : str, model_key : str):
-    print('item',item)
+def predict_income(item: IncomeBody, model_key : str, name : str):
     result= PredictService(client, model_key, name).predict(item)
-    print('result',result)
-    return handle_result(result)
+    item.target = handle_result(result)
+    return item
 
-# #프로파일링
-# import cProfile
-# import re
-# cProfile.run('re.compile("produce_model|predict_income")')
+#프로파일링
+import cProfile
+import re
+cProfile.run('re.compile("produce_model|predict_income")')

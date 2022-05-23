@@ -6,3 +6,10 @@ engine = create_engine("postgresql://postgres:1234@localhost/income_db",echo=Tru
 Base = declarative_base()
 
 SessionLocal = sessionmaker(bind = engine)
+
+def get_db():
+    db=SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
