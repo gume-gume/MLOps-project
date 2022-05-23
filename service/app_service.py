@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import joblib
-from requests import Session
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
 
@@ -19,11 +18,13 @@ from optuna.samplers import TPESampler
 from schemas.response import *
 from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
-from utils.service_result import handle_result
 
 from db.database import SessionLocal
 
 import psycopg2
+
+
+
 class TrainService():
     def __init__(self):
         self.db = SessionLocal
@@ -100,7 +101,7 @@ class TrainService():
 
 
     def model_scoring(self, params, X_train, y_train, pred, measure='accuracy'):
-        pred=model_predict(params, X_train,y_train)
+        pred= self.model_predict(params, X_train,y_train)
 
         scores={}
         scores['accuracy']=accuracy_score(y_train, pred)
@@ -131,18 +132,10 @@ class TrainService():
 
 
 class PredictService():
-    def __init__(self,client,model_key, file_name):
+    def __init__(self, client, model_key, file_name):
         self.client = client
         self.model_key = model_key
         self.file_name = file_name
-    
-    def set_model_redisai(self, model):
-        initial_type = [("input", FloatTensorType([None, 14]))]
-        onx_model = convert_sklearn(model, initial_types=initial_type)
-        self.client.modelstore(
-            key = self.model_key, backend="onnx", device="cpu", data=onx_model.SerializeToString()
-                )
-
 
     def load_model(self) -> bool:
         result = False
@@ -155,7 +148,15 @@ class PredictService():
             return result
         return result
 
-    def model_run(self, item):
+    def set_model_redisai(self, model):        
+        initial_type = [("input", FloatTensorType([None, 14]))]
+        onx_model = convert_sklearn(model, initial_types=initial_type)
+        self.client.modelstore(
+            key = self.model_key, backend="onnx", device="cpu", data=onx_model.SerializeToString()
+                )
+
+
+    def model_run(self, item):        
         self.client.tensorset(
             "input_tensor",
             np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
@@ -169,23 +170,13 @@ class PredictService():
         return self.client.tensorget("output_tensor_class").tolist()[0]
         
     def predict(self, data):
-        print('data',data)
         result = None
-        is_set = False
-        print(self.client.exists('model')) # true : 1
         if not self.client.exists('model'):####
-            
             is_set = self.load_model()
-            print('is_set',is_set)
-            
-        if not is_set:
-            
-            return ServiceResult(AppException.LoadModel())
-        print('client', self.client , 'modelkey',self.model_key )
+            if not is_set:
+                return ServiceResult(AppException.LoadModel())
         try:
-            result = self.model_run(self.client,f'{self.model_key}',data)
+            result = self.model_run(data)
         except Exception as err:
-            print('error')
             return ServiceResult(AppException.LoadModel())
-
         return ServiceResult(result)
