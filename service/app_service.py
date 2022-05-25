@@ -20,6 +20,8 @@ from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
 
 from db.database import SessionLocal
+from db.models import People_Table
+#from db.database import 
 
 import psycopg2
 
@@ -30,7 +32,7 @@ class TrainService():
         self.db = SessionLocal
 
     def load_data(self):
-        conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = '1234'"
+        conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = 'postgres'"
         conn = psycopg2.connect(conn_string)
         cur = conn.cursor()
         cur.execute('SELECT * FROM people_income;')
@@ -43,6 +45,7 @@ class TrainService():
         data['native_country']=data['native_country'].fillna('United-States')
         data.dropna(inplace=True)
         return data
+
     def data_split(self, data, size=0.25):
 
         y = data.loc[:,'target']
@@ -113,8 +116,12 @@ class TrainService():
     def model_save(self, model):
         joblib.dump(model, 'model.pkl',compress=3)
 
-    def train(self, data: pd.DataFrame, n_trial, n_split, scoring):
+    def train(self, n_trial, n_split, scoring):
         try:
+            try:
+                data = self.load_data()
+            except Exception as ex:
+                print(ex, '1111111')
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
@@ -179,4 +186,4 @@ class PredictService():
             result = self.model_run(data)
         except Exception as err:
             return ServiceResult(AppException.LoadModel())
-        return ServiceResult(result)
+        return ServiceResult({'target': result, "context":'Done'})
