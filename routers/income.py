@@ -1,5 +1,4 @@
-from fastapi import APIRouter,FastAPI,Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter,Depends
 
 from db.database import SessionLocal, get_db
 
@@ -16,9 +15,6 @@ router = APIRouter()
 
 db = SessionLocal()
 
-class Message(BaseModel):
-    message: str
-
 @router.on_event("startup")
 def start_up():
     global client
@@ -30,10 +26,7 @@ def produce_model(n_trial: int, n_split:int, scoring : str, db:get_db=Depends())
 
     return  handle_result(result)
 
-@router.post("/income/predict",response_model=Item, responses={
-        "422" : {"model": Message, "description": "The item was not found!!!"},
-        200 : {"model": Message, "description": "The item was not found"}
-        })
+@router.post("/income/predict",response_model=Item)
 def predict_income(item: IncomeBody, model_key : str, name : str):
     result= PredictService(client, model_key, name).predict(item)
     return handle_result(result)
