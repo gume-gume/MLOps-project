@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 class People(BaseModel):
+    """
+    작성자 : 장영동
+    response 모델
+    """
     id : int
     age : int
     workclass : str
@@ -24,5 +28,9 @@ class People(BaseModel):
         orm_mode = True
 
 class Item(BaseModel):
+    """
+    작성자 : 장영동
+    prediction output
+    """
     target : int
     context : Optional[str] = None

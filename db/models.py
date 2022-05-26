@@ -2,6 +2,10 @@ from .database import Base
 from sqlalchemy import String,Integer,Column
 
 class People_Table(Base):
+    """
+    작성자 : 장영동
+    Table Definition
+    """
     __tablename__ = 'people_income'
 
     id = Column(Integer,primary_key=True)

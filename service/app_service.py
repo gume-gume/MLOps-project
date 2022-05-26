@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+
 import joblib
+
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
 
@@ -10,19 +12,26 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-import psycopg2
+
 import optuna
 from optuna.samplers import TPESampler
+
 from schemas.response import *
+
 from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
 
 from db.database import SessionLocal, insert_data, engine
 
 class TrainService():
+    """
+    Train 서비스 
+    데이터 로드 / 전처리 / 분리 / 라벨링 / 최적화 / 예측 / 모델 저장 기능
+    """
     def __init__(self):
         self.db = SessionLocal
         self.engine=engine
+        
     def load_data(self):
         data=pd.read_sql_query(f'SELECT * FROM people_incomes;', self.engine)
         return data
@@ -33,7 +42,6 @@ class TrainService():
         return data
 
     def data_split(self, data, size=0.25):
-
         y = data.loc[:,'target']
         y = y.astype('int')
         X = data.drop("target", axis = 1)
@@ -42,7 +50,6 @@ class TrainService():
 
     def labeling(self,data:People, newdata:People):
         nominals=[key for key, value in data.dtypes.items() if value==object]
-        #nominals=['workclass','education','marital_status','occupation','relationship','race','sex','native_country']
         for ord in nominals:
             le = LabelEncoder()
             le.fit(data[ord])
@@ -112,6 +119,9 @@ class TrainService():
 
 
 class PredictService():
+    """
+    저장된 모델을 불러와 redisai에 저장 후 불러와서 예측 함
+    """
     def __init__(self, client, model_key, file_name):
         self.client = client
         self.model_key = model_key
@@ -135,7 +145,6 @@ class PredictService():
             key = self.model_key, backend="onnx", device="cpu", data=onx_model.SerializeToString()
                 )
 
-
     def model_run(self, item):
         self.client.tensorset(
             "input_tensor",
@@ -151,7 +160,7 @@ class PredictService():
 
     def predict(self, data):
         result = None
-        if not self.client.exists('model'):####
+        if not self.client.exists('model'):
             is_set = self.load_model()
             if not is_set:
                 return ServiceResult(AppException.LoadModel())
