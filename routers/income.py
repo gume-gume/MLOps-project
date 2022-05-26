@@ -1,4 +1,5 @@
-from fastapi import APIRouter,FastAPI,Depends
+from fastapi import APIRouter,Depends
+
 from db.database import SessionLocal, get_db
 
 from schemas.request import IncomeBody
@@ -10,7 +11,6 @@ from utils.service_result import handle_result
 
 client = None
 
-app = FastAPI()
 router = APIRouter()
 
 db = SessionLocal()
@@ -22,14 +22,14 @@ def start_up():
 
 @router.post('/production')
 def produce_model(n_trial: int, n_split:int, scoring : str, db:get_db=Depends()):
-    result= TrainService(db).train(n_trial=n_trial, n_split=n_split, scoring=scoring )
-    return handle_result(result)
+    result= TrainService().train(n_trial=n_trial, n_split=n_split, scoring=scoring )
+
+    return  handle_result(result)
 
 @router.post("/income/predict",response_model=Item)
 def predict_income(item: IncomeBody, model_key : str, name : str):
     result= PredictService(client, model_key, name).predict(item)
-    item.target = handle_result(result)
-    return item
+    return handle_result(result)
 
 #프로파일링
 import cProfile
