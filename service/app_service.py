@@ -19,9 +19,6 @@ from utils.service_result import ServiceResult
 
 from db.database import SessionLocal, insert_data, engine
 
-
-
-
 class TrainService():
     def __init__(self):
         self.db = SessionLocal
