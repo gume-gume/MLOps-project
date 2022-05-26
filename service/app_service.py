@@ -19,9 +19,11 @@ from schemas.response import *
 from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
 
-from db.database import SessionLocal
+
+from db.database import SessionLocal, creat_table, insert_data
 from db.models import People_Table
-#from db.database import 
+
+
 
 import psycopg2
 
@@ -118,10 +120,9 @@ class TrainService():
 
     def train(self, n_trial, n_split, scoring):
         try:
-            try:
-                data = self.load_data()
-            except Exception as ex:
-                print(ex, '1111111')
+            creat_table()
+            insert_data()
+            data = self.load_data()
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
@@ -131,11 +132,9 @@ class TrainService():
             pred = self.model_predict(params, X_train,y_train)
             self.model_save(pred)
         except Exception as err:
+            print('train:',err)
             return ServiceResult(AppException.LoadModel()) 
         return ServiceResult('Train Done.')
-
-###############################################################
-
 
 
 class PredictService():
