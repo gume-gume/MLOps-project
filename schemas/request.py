@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 class IncomeBody(BaseModel):
+    """
+    작성자 : 장영동
+    request body / input data
+    """
     age : int
     workclass : int
     fnlwgt : int
@@ -18,7 +22,12 @@ class IncomeBody(BaseModel):
     native_country : int
     target : Optional[int] = None
     context : Optional[str] = None
+
 class MakeModel(BaseModel):
+    """
+    작성자 : 장영동
+    모델 학습 파라미터
+    """
     n_trial : int
     n_split : int
     scoring : str
