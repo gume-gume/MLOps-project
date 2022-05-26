@@ -10,37 +10,21 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-
-#hyperparameter tuning
+import psycopg2
 import optuna
 from optuna.samplers import TPESampler
-
 from schemas.response import *
 from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
 
-
-from db.database import SessionLocal, creat_table, insert_data
-from db.models import People_Table
-
-
-
-import psycopg2
-
-
+from db.database import SessionLocal, insert_data, engine
 
 class TrainService():
     def __init__(self):
         self.db = SessionLocal
-
+        self.engine=engine
     def load_data(self):
-        conn_string = "host = 'localhost' dbname = 'income_db' user = 'postgres' password = 'postgres'"
-        conn = psycopg2.connect(conn_string)
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM people_income;')
-        result = np.array(cur.fetchall())
-        data = pd.DataFrame(result)
-        data.columns = [desc[0] for desc in cur.description]
+        data=pd.read_sql_query(f'SELECT * FROM people_incomes;', self.engine)
         return data
 
     def preprocessing(self,data):
@@ -56,27 +40,23 @@ class TrainService():
         X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=size, random_state=1234,stratify=y)
         return X_train, X_test, y_train, y_test
 
-
-    def labeling(self,data, newdata):
-        nominals=[key for key, value in data.dtypes.items() if value==object] #object타입의 데이터 list
+    def labeling(self,data:People, newdata:People):
+        nominals=[key for key, value in data.dtypes.items() if value==object]
+        #nominals=['workclass','education','marital_status','occupation','relationship','race','sex','native_country']
         for ord in nominals:
             le = LabelEncoder()
             le.fit(data[ord])
-            data[ord] = le.transform(data[ord])#규칙적용
-            prev_class = list(le.classes_)#컬럼내 유니크한 값 list
-
+            data[ord] = le.transform(data[ord])
+            prev_class = list(le.classes_)
             for label in np.unique(newdata[ord]):
-                if label not in prev_class: #unseendata 확인 후 없으면 추가
+                if label not in prev_class:
                     prev_class.append(label)
-
             le.classes_ = np.array(prev_class)
-            newdata[ord] = le.transform(newdata[ord])#새로 수정된 규칙으로 적용
+            newdata[ord] = le.transform(newdata[ord])
         return data, newdata
 
-
-    def rf_optimization(self, data, X_train, y_train, n_trials=10,  n_splits=5, measure='accuracy'):
-        kfold = KFold(n_splits = n_splits, random_state=1234,shuffle=True )
-
+    def rf_optimization(self,  X_train, y_train, n_splits:int, n_trials:int, measure:str):
+        kfold = KFold(n_splits =n_splits, random_state=1234,shuffle=True )
         def objective(trial):
             params = {
                 'criterion' : trial.suggest_categorical("criterion", ["gini","entropy"]),
@@ -97,17 +77,14 @@ class TrainService():
         params=study.best_trial.params
         return params
 
-
     def model_predict(self, params, X_train,y_train):
         model=RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
         model.fit(X_train, y_train)
         pred = model.predict(X_train)
         return pred
 
-
-    def model_scoring(self, params, X_train, y_train, pred, measure='accuracy'):
+    def model_scoring(self, params, X_train, y_train, pred, measure):
         pred= self.model_predict(params, X_train,y_train)
-
         scores={}
         scores['accuracy']=accuracy_score(y_train, pred)
         scores['recall']=recall_score(y_train, pred)
@@ -118,22 +95,19 @@ class TrainService():
     def model_save(self, model):
         joblib.dump(model, 'model.pkl',compress=3)
 
-    def train(self, n_trial, n_split, scoring):
+    def train(self, n_trial:int, n_split:int, scoring:str):
         try:
-            creat_table()
             insert_data()
             data = self.load_data()
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
-            params = self.rf_optimization(X_train, y_train, n_trials={n_trial},  n_splits={n_split}, measure={scoring})
-            pred = self.model_predict(params, X_train,y_train)
-            params = self.rf_optimization(X_train, y_train, n_trials=3,  n_splits=2, measure='accuracy')
+            params = self.rf_optimization(X_train, y_train, n_trials=n_trial,  n_splits=n_split, measure=scoring)
             pred = self.model_predict(params, X_train,y_train)
             self.model_save(pred)
         except Exception as err:
             print('train:',err)
-            return ServiceResult(AppException.LoadModel()) 
+            return ServiceResult(AppException.LoadModel())
         return ServiceResult('Train Done.')
 
 
@@ -149,12 +123,12 @@ class PredictService():
             model = joblib.load(f"{self.file_name}.pkl")
             self.set_model_redisai(model)
             result = True
-        except Exception as err:         
+        except Exception as err:
             result = False
             return result
         return result
 
-    def set_model_redisai(self, model):        
+    def set_model_redisai(self, model):
         initial_type = [("input", FloatTensorType([None, 14]))]
         onx_model = convert_sklearn(model, initial_types=initial_type)
         self.client.modelstore(
@@ -162,7 +136,7 @@ class PredictService():
                 )
 
 
-    def model_run(self, item):        
+    def model_run(self, item):
         self.client.tensorset(
             "input_tensor",
             np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
@@ -174,7 +148,7 @@ class PredictService():
             outputs=["output_tensor_class", "output_tensor_prob"],
             )
         return self.client.tensorget("output_tensor_class").tolist()[0]
-        
+
     def predict(self, data):
         result = None
         if not self.client.exists('model'):####
