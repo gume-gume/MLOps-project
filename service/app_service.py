@@ -19,7 +19,11 @@ from schemas.response import *
 from utils.app_exceptions import AppException
 from utils.service_result import ServiceResult
 
+
 from db.database import SessionLocal, creat_table, insert_data
+from db.models import People_Table
+
+
 
 import psycopg2
 
@@ -43,6 +47,7 @@ class TrainService():
         data['native_country']=data['native_country'].fillna('United-States')
         data.dropna(inplace=True)
         return data
+
     def data_split(self, data, size=0.25):
 
         y = data.loc[:,'target']
@@ -131,9 +136,6 @@ class TrainService():
             return ServiceResult(AppException.LoadModel()) 
         return ServiceResult('Train Done.')
 
-###############################################################
-
-
 
 class PredictService():
     def __init__(self, client, model_key, file_name):
@@ -183,4 +185,4 @@ class PredictService():
             result = self.model_run(data)
         except Exception as err:
             return ServiceResult(AppException.LoadModel())
-        return ServiceResult(result)
+        return ServiceResult({'target': result, "context":'Done'})

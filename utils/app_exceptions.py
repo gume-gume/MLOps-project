@@ -19,7 +19,7 @@ async def app_exception_handler(request: Request, exc: AppExceptionCase):
     return JSONResponse(
         status_code=exc.status_code,
         content={
-            "app_exception": exc.exception_case,
+            "exception": exc.exception_case,
             "context": exc.context,
         },
     )
@@ -30,13 +30,14 @@ class AppException(object):
             """
             load model error
             """
-            status_code = 500
+            status_code = 404
+            context = '모델 불러오기 실패하였습니다. 모델 명, 모델 키 입력값을 확인하세요.'
             AppExceptionCase.__init__(self, status_code, context)
-
-    # class ModelKey(AppExceptionCase):
-    #     def __init__(self, context: dict = None):
-    #         """
-    #         Prediction error
-    #         """
-    #         status_code = 500
-    #         AppExceptionCase.__init__(self, status_code, context)
+    class TimeError(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            load time too long
+            """
+            status_code = 429
+            context = '시간이 초과되었습니다.'
+            AppExceptionCase.__init__(self, status_code, context)
