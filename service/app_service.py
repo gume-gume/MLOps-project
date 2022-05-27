@@ -25,13 +25,13 @@ from db.database import SessionLocal, insert_data, engine
 
 class TrainService():
     """
-    Train 서비스 
+    Train 서비스
     데이터 로드 / 전처리 / 분리 / 라벨링 / 최적화 / 예측 / 모델 저장 기능
     """
     def __init__(self):
         self.db = SessionLocal
         self.engine=engine
-        
+
     def load_data(self):
         data=pd.read_sql_query(f'SELECT * FROM people_incomes;', self.engine)
         return data
@@ -99,23 +99,21 @@ class TrainService():
         scores['f1']=f1_score(y_train, pred)
         return scores[measure]
 
-    def model_save(self, model):
-        joblib.dump(model, 'model.pkl',compress=3)
+    def model_save(self, model,names):
+        joblib.dump(model, f'{names}.pkl',compress=3)
 
-    def train(self, n_trial:int, n_split:int, scoring:str):
+    def train(self, n_trial:int, n_split:int, scoring:str,name:str):
         try:
-            insert_data()
             data = self.load_data()
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
             params = self.rf_optimization(X_train, y_train, n_trials=n_trial,  n_splits=n_split, measure=scoring)
             pred = self.model_predict(params, X_train,y_train)
-            self.model_save(pred)
+            self.model_save(pred,names=name)
         except Exception as err:
-            print('train:',err)
             return ServiceResult(AppException.LoadModel())
-        return ServiceResult('Train Done.')
+        return ServiceResult('Train Done')
 
 
 class PredictService():
@@ -130,7 +128,7 @@ class PredictService():
     def load_model(self) -> bool:
         result = False
         try:
-            model = joblib.load(f"{self.file_name}.pkl")
+            model = joblib.load(f'{self.file_name}.pkl')
             self.set_model_redisai(model)
             result = True
         except Exception as err:
@@ -139,24 +137,24 @@ class PredictService():
         return result
 
     def set_model_redisai(self, model):
-        initial_type = [("input", FloatTensorType([None, 14]))]
+        initial_type = [('input', FloatTensorType([None, 14]))]
         onx_model = convert_sklearn(model, initial_types=initial_type)
         self.client.modelstore(
-            key = self.model_key, backend="onnx", device="cpu", data=onx_model.SerializeToString()
+            key = self.model_key, backend='onnx', device='cpu', data=onx_model.SerializeToString()
                 )
 
     def model_run(self, item):
         self.client.tensorset(
-            "input_tensor",
+            'input_tensor',
             np.array([[item.age, item.workclass, item.fnlwgt, item.education, item.education_num, item.marital_status, item.occupation, item.relationship,
             item.race, item.sex,item.capital_gain,item.capital_loss,item.hours_per_week,item.native_country]], dtype=np.float32),
             )
         self.client.modelrun(
             key=self.model_key,
-            inputs=["input_tensor"],
-            outputs=["output_tensor_class", "output_tensor_prob"],
+            inputs=['input_tensor'],
+            outputs=['output_tensor_class', 'output_tensor_prob'],
             )
-        return self.client.tensorget("output_tensor_class").tolist()[0]
+        return self.client.tensorget('output_tensor_class').tolist()[0]
 
     def predict(self, data):
         result = None
@@ -168,4 +166,4 @@ class PredictService():
             result = self.model_run(data)
         except Exception as err:
             return ServiceResult(AppException.LoadModel())
-        return ServiceResult({'target': result, "context":'Done'})
+        return ServiceResult({'target': result, 'context':'Done'})

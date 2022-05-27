@@ -1,4 +1,6 @@
+import imp
 from fastapi import APIRouter,Depends
+from fastapi.responses import JSONResponse
 
 from db.database import SessionLocal, get_db
 
@@ -16,23 +18,18 @@ router = APIRouter()
 
 db = SessionLocal()
 
-@router.on_event("startup")
+@router.on_event('startup')
 def start_up():
     global client
-    client = rai.Client(host="localhost", port=6379, health_check_interval=30)
+    client = rai.Client(host='localhost', port=6379, health_check_interval=30)
 
 @router.post('/production')
-def produce_model(n_trial: int, n_split:int, scoring : str, db:get_db=Depends()):
-    result= TrainService().train(n_trial=n_trial, n_split=n_split, scoring=scoring )
+def produce_model(n_trial: int, n_split:int, scoring : str, name : str, db:get_db=Depends()):
+    result= TrainService().train(n_trial=n_trial, n_split=n_split, scoring=scoring, name= name )
 
     return  handle_result(result)
 
-@router.post("/income/predict",response_model=Item)
+@router.post('/income/predict',response_model=Item)
 def predict_income(item: IncomeBody, model_key : str, name : str):
     result= PredictService(client, model_key, name).predict(item)
     return handle_result(result)
-
-#프로파일링
-import cProfile
-import re
-cProfile.run('re.compile("produce_model|predict_income")')

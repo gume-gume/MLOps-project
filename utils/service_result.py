@@ -17,13 +17,13 @@ class ServiceResult(object):
 
     def __str__(self):
         if self.success:
-            return "[Success]"
+            return '[Success]'
         return f'[Exception] "{self.exception_case}"'
 
     def __repr__(self):
         if self.success:
             return "<ServiceResult Success>"
-        return f"<ServiceResult AppException {self.exception_case}>"
+        return f'<ServiceResult AppException {self.exception_case}>'
 
     def __enter__(self):
         return self.value
@@ -38,7 +38,7 @@ def caller_info() -> str:
 
 
 def handle_result(result: ServiceResult):
-    if not result.success:        
+    if not result.success:
         with result as exception:
             logger.error(f"{exception} | caller={caller_info()}")
             raise exception
