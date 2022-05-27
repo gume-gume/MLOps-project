@@ -3,19 +3,17 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
+from config import settings
 
-engine = create_engine("postgresql://postgres:postgres@localhost/income_db",echo=True)
-
+engine = create_engine(f"postgresql://{settings.DB_ID}:{settings.DB_PASSWORD}@{settings.DB_ADDRESS}/{settings.DB_NAME}",echo=True)
 Base = declarative_base()
-
 SessionLocal = sessionmaker(bind = engine)
-
-conn = psycopg2.connect(host = 'localhost',
-                        database = 'income_db',
-                        user = 'postgres',
-                        password = 'postgres')
-conn.autocommit = True
+conn = psycopg2.connect(host =settings.DB_ADDRESS ,
+                        database = settings.DB_NAME,
+                        user = settings.DB_ID,
+                        password =settings.DB_PASSWORD)
 cursor = conn.cursor()
+conn.autocommit = True
 
 def get_db():
     db=SessionLocal()
