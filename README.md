@@ -43,13 +43,10 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 - reidsai를 통한 model serving
 - exception 정의 및 handler 작성
 
-### 4. Mlflow 및 Minio를 활용한 모델 레지스트리 구현
-- mlflow를 통한 모델관리
-- mlflow 와 minio 연동
-
-
 ```bash
-├── DB
+├── main.py
+├── config.py
+├── db
 │   ├── create_db.py
 │   ├── database.py
 │   └── models.py
@@ -59,8 +56,9 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 │   ├── request_exceptions.py
 │   └── service_result.py
 ├── routers
-│   └── redisai.py
-│
+│   └── income.py
+├── service
+│   └── app_service.py
 └── schemas
     ├── request.py
     └── response.py
