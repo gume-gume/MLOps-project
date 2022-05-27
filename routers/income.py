@@ -8,10 +8,10 @@ import redisai as rai
 from service.app_service import *
 from utils.service_result import handle_result
 from config import settings
-client = None
+
 router = APIRouter()
 db = SessionLocal()
-
+client = None
 @router.on_event('startup')
 def start_up():
     global client
