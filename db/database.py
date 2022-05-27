@@ -5,9 +5,7 @@ import pandas as pd
 import psycopg2
 from config import settings
 
-
-
-engine = create_engine(f"postgresql://{settings.DB_ID}:{settings.DB_PASSWORD}@{settings.DB_ADDRESS}/{settings.DB_NAME}" ,echo=True)
+engine = create_engine("postgresql://postgres:postgres@localhost/income_db",echo=True)
 Base = declarative_base()
 SessionLocal = sessionmaker(bind = engine)
 conn = psycopg2.connect(host =settings.DB_ADDRESS ,
@@ -17,13 +15,16 @@ conn = psycopg2.connect(host =settings.DB_ADDRESS ,
 cursor = conn.cursor()
 conn.autocommit = True
 
-
 def get_db():
     db=SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def create_tables():
+    Base.metadata.create_all(bind=engine)
 
 def insert_data():
     """
