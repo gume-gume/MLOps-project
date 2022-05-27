@@ -44,22 +44,22 @@ MLOps는 DevOps에 ML이 추가된 것입니다.
 - exception 정의 및 handler 작성
 
 ```bash
+app
 ├── main.py
 ├── config.py
 ├── db
-│   ├── create_db.py
 │   ├── database.py
 │   └── models.py
-├── errors
-│   ├── app_exceptions.py
-│   ├── handlers.py
-│   ├── request_exceptions.py
-│   └── service_result.py
 ├── routers
 │   └── income.py
+├── schemas
+│   ├── request.py
+│   └── response.py
 ├── service
 │   └── app_service.py
-└── schemas
-    ├── request.py
-    └── response.py
+└── utils
+    ├── app_exceptions.py
+    ├── handlers.py
+    ├── request_exceptions.py
+    └── service_result.py
 ```
