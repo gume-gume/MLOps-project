@@ -3,6 +3,7 @@ import inspect
 
 from utils.app_exceptions import AppExceptionCase
 
+
 class ServiceResult(object):
     def __init__(self, arg):
         if isinstance(arg, AppExceptionCase):
@@ -17,13 +18,13 @@ class ServiceResult(object):
 
     def __str__(self):
         if self.success:
-            return '[Success]'
+            return "[Success]"
         return f'[Exception] "{self.exception_case}"'
 
     def __repr__(self):
         if self.success:
             return "<ServiceResult Success>"
-        return f'<ServiceResult AppException {self.exception_case}>'
+        return f"<ServiceResult AppException {self.exception_case}>"
 
     def __enter__(self):
         return self.value
