@@ -29,6 +29,11 @@ class People(BaseModel):
         orm_mode = True
 
 
+class TrainDone(BaseModel):
+    purpose: str
+    context: str
+
+
 class Item(BaseModel):
     """
     작성자 : 장영동
@@ -39,49 +44,6 @@ class Item(BaseModel):
     context: Optional[str] = None
 
 
-error_responses = {
-    404: {
-        "description": "Additional Response",
-        "content": {
-            "application/json": {
-                "example": {
-                    "exception": "Additional Response",
-                    "context": "API 주소를 확인하세요",
-                }
-            }
-        },
-    },
-    422: {
-        "description": "Validation Error",
-        "content": {
-            "application/json": {
-                "example": {
-                    "exception": "Validation Error",
-                    "context": "입력값을 다시 확인해보세요",
-                }
-            }
-        },
-    },
-    429: {
-        "description": "Time Out Error",
-        "content": {
-            "application/json": {
-                "example": {
-                    "exception": "Time Out Error",
-                    "context": "logging 시간이 많이 걸리네요",
-                }
-            }
-        },
-    },
-    500: {
-        "description": "Internal Server Error",
-        "content": {
-            "application/json": {
-                "example": {
-                    "exception": "Internal Server Error",
-                    "context": "내부 서버 문제입니다",
-                }
-            }
-        },
-    },
-}
+class ExceptionResponseModel(BaseModel):
+    exception: str
+    context: str

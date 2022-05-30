@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
-from db.database import SessionLocal, get_db
+from fastapi import APIRouter
+from db.database import SessionLocal
 
 from schemas.request import IncomeBody
-from schemas.response import Item
+from schemas.response import Item, TrainDone
 
 import redisai as rai
 
@@ -27,10 +27,8 @@ def start_up():
     )
 
 
-@router.post("/production")
-def produce_model(
-    n_trial: int, n_split: int, scoring: str, name: str, db: get_db = Depends()
-):
+@router.post("/production", response_model=TrainDone)
+def produce_model(n_trial: int, n_split: int, scoring: str, name: str):
     result = TrainService().train(
         n_trial=n_trial, n_split=n_split, scoring=scoring, name=name
     )

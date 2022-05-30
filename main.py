@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routers import income
-from schemas.response import error_responses
+from schemas.response import ExceptionResponseModel
 from utils.handlers import (
     custom_http_exception_handler,
     custom_validation_exception_handler,
@@ -11,7 +11,14 @@ from utils.app_exceptions import AppExceptionCase
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-app = FastAPI(responses={**error_responses})
+app = FastAPI(
+    responses={
+        404: {"model": ExceptionResponseModel, "description": "Additional Response"},
+        422: {"model": ExceptionResponseModel, "description": "Validation Error"},
+        429: {"model": ExceptionResponseModel, "description": "Time Out Error"},
+        500: {"model": ExceptionResponseModel, "description": "Internal Server Error"},
+    }
+)
 
 app.include_router(router=income.router)
 
