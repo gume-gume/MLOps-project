@@ -1,7 +1,7 @@
 ---
 name: "\U0001F4A5 Bug"
 about: 버그에 대해 설명해주세요
-title: ''
+title: "[BUG]"
 labels: bug
 assignees: ''
 

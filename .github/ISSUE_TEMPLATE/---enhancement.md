@@ -1,8 +1,8 @@
 ---
 name: "\U0001F6E0 Enhancement"
 about: 기능 추가에 대해 설명해주세요
-title: ''
-labels: enhancement, help wanted, question
+title: "[ENHHANCEMENT]"
+labels: enhancement
 assignees: ''
 
 ---

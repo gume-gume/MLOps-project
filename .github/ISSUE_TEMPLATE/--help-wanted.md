@@ -1,7 +1,7 @@
 ---
 name: "\U0001F44BHelp wanted"
 about: 어떤 도움이 필요한가요?
-title: ''
+title: "[HELP]"
 labels: help wanted
 assignees: ''
 

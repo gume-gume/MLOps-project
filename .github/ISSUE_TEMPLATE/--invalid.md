@@ -1,7 +1,7 @@
 ---
 name: "✋ Invalid"
 about: 불가능한 이유
-title: ''
+title: "[INVALID]"
 labels: Invalid
 assignees: ''
 
