@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 from routers import income
 from schemas.response import ExceptionResponseModel
@@ -31,3 +32,6 @@ def root():
 app.add_exception_handler(StarletteHTTPException, custom_http_exception_handler)
 app.add_exception_handler(RequestValidationError, custom_validation_exception_handler)
 app.add_exception_handler(AppExceptionCase, custom_app_exception_handler)
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", reload=True)
