@@ -1,15 +1,12 @@
-import os
-import sys
-from fastapi import APIRouter
 from db.database import SessionLocal
-from schemas.request import IncomeBody
-from schemas.response import Item, TrainDone
+from fastapi import APIRouter
+from ..schemas.request import IncomeBody
+from ..schemas.response import Item, TrainDone
 import redisai as rai
-from service.app_service import TrainService, PredictService
-from utils.service_result import handle_result
+from ..service.app_service import TrainService, PredictService
+from ..utils.service_result import handle_result
 from config import settings
 
-sys.path.insert(1, os.path.abspath("."))
 router = APIRouter()
 
 db = SessionLocal()
