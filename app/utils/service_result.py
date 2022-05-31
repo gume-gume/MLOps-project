@@ -1,7 +1,7 @@
 from loguru import logger
 import inspect
 
-from ..utils.app_exceptions import AppExceptionCase
+from app.utils.app_exceptions import AppExceptionCase
 
 
 class ServiceResult(object):
