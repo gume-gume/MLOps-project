@@ -1,8 +1,8 @@
-from ..utils.request_exceptions import (
+from app.utils.request_exceptions import (
     http_exception_handler,
     request_validation_exception_handler,
 )
-from ..utils.app_exceptions import app_exception_handler
+from app.utils.app_exceptions import app_exception_handler
 
 
 async def custom_http_exception_handler(request, e):

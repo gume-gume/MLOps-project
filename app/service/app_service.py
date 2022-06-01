@@ -16,10 +16,10 @@ from sklearn.model_selection import train_test_split
 import optuna
 from optuna.samplers import TPESampler
 
-from ..schemas.response import People
+from app.schemas.response import People
 
-from ..utils.app_exceptions import AppException
-from ..utils.service_result import ServiceResult
+from app.utils.app_exceptions import AppException
+from app.utils.service_result import ServiceResult
 
 from db.database import SessionLocal, engine
 
