@@ -21,7 +21,7 @@ from app.schemas.response import People
 from app.utils.app_exceptions import AppException
 from app.utils.service_result import ServiceResult
 
-from db.database import SessionLocal, engine
+from app.db.database import SessionLocal, engine
 
 
 class TrainService:
@@ -108,20 +108,24 @@ class TrainService:
         scores["f1"] = f1_score(y_train, pred)
         return scores[measure]
 
-    def model_save(self, model, names):
-        joblib.dump(model, f"{names}.pkl", compress=3)
+    def model_save(self, model, model_key):
+        return joblib.dump(model, f"{model_key}.pkl", compress=3)
 
-    def train(self, n_trial: int, n_split: int, scoring: str, name: str):
+    def train(self, n_trial: int, n_split: int, scoring: str, model_key: str):
         try:
             data = self.load_data()
+            print(1)
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
             params = self.rf_optimization(
                 X_train, y_train, n_trials=n_trial, n_splits=n_split, measure=scoring
             )
-            pred = self.model_predict(params, X_train, y_train)
-            self.model_save(pred, names=name)
+            print(2)
+            model = RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
+            model.fit(X_train, y_train)
+            self.model_save(model, model_key=model_key)
+            print(4)
         except Exception:
             return ServiceResult(AppException.LoadModel())
         return ServiceResult({"purpose": "Train", "context": "Done"})
@@ -132,15 +136,14 @@ class PredictService:
     저장된 모델을 불러와 redisai에 저장 후 불러와서 예측 함
     """
 
-    def __init__(self, client, model_key, file_name):
+    def __init__(self, client, model_key):
         self.client = client
         self.model_key = model_key
-        self.file_name = file_name
 
     def load_model(self) -> bool:
         result = False
         try:
-            model = joblib.load(f"{self.file_name}.pkl")
+            model = joblib.load(f"{self.model_key}.pkl")
             self.set_model_redisai(model)
             result = True
         except Exception:
@@ -149,14 +152,17 @@ class PredictService:
         return result
 
     def set_model_redisai(self, model):
-        initial_type = [("input", FloatTensorType([None, 14]))]
-        onx_model = convert_sklearn(model, initial_types=initial_type)
-        self.client.modelstore(
-            key=self.model_key,
-            backend="onnx",
-            device="cpu",
-            data=onx_model.SerializeToString(),
-        )
+        try:
+            initial_type = [("input", FloatTensorType([None, 14]))]
+            onx_model = convert_sklearn(model, initial_types=initial_type)
+            self.client.modelstore(
+                key=self.model_key,
+                backend="onnx",
+                device="cpu",
+                data=onx_model.SerializeToString(),
+            )
+        except Exception as ex:
+            print("=-----------=", ex)
 
     def model_run(self, item):
         self.client.tensorset(
@@ -188,16 +194,20 @@ class PredictService:
             inputs=["input_tensor"],
             outputs=["output_tensor_class", "output_tensor_prob"],
         )
+        self.client.expire = ("input_tensor", 1)
         return self.client.tensorget("output_tensor_class").tolist()[0]
 
     def predict(self, data):
-        result = None
-        if not self.client.exists("model"):
-            is_set = self.load_model()
-            if not is_set:
-                return ServiceResult(AppException.LoadModel())
         try:
-            result = self.model_run(data)
-        except Exception:
-            return ServiceResult(AppException.LoadModel())
-        return ServiceResult({"target": result, "context": "Done"})
+            result = None
+            if not self.client.exists(self.model_key):
+                is_set = self.load_model()
+                if not is_set:
+                    return ServiceResult(AppException.LoadModel())
+            try:
+                result = self.model_run(data)
+            except Exception:
+                return ServiceResult(AppException.LoadModel())
+            return ServiceResult({"target": result, "context": "Done"})
+        except Exception as ex:
+            print("predict", ex)
