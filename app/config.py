@@ -11,15 +11,9 @@ class Settings(BaseSettings):
     REDIS_ADDRESS: str
     REDIS_PORT: int
     REDIS_health_check_interval: int
-    AWS_BUCKET_NAME: str
-    AWS_REGION: str
-    MLFLOW_S3_ENDPOINT_URL: str
-    AWS_ACCESS_KEY_ID: str
-    AWS_SECRET_ACCESS_KEY: str
-    MLFLOW_URL: str
 
     class Config:
-        env_file = ".env"
+        env_file = "app/.env"
 
 
 @lru_cache()
