@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-import joblib
+import mlflow
 
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
@@ -99,7 +99,7 @@ class TrainService:
         pred = model.predict(X_train)
         return pred
 
-    def model_scoring(self, params, X_train, y_train, pred, measure):
+    def model_scoring(self, params, X_train, y_train, measure):
         pred = self.model_predict(params, X_train, y_train)
         scores = {}
         scores["accuracy"] = accuracy_score(y_train, pred)
@@ -108,10 +108,16 @@ class TrainService:
         scores["f1"] = f1_score(y_train, pred)
         return scores[measure]
 
-    def model_save(self, model, model_key):
-        return joblib.dump(model, f"{model_key}.pkl", compress=3)
+    def model_save(self, model, model_key, params, metrics):
+        mlflow.set_tracking_uri("http://127.0.0.1:5000")
+        mlflow.set_experiment("rf_test")
+        mlflow.start_run()
+        mlflow.log_params(params)
+        mlflow.log_metrics(metrics)
+        mlflow.sklearn.log_model(model, "rf_model", registered_model_name=model_key)
+        mlflow.end_run()
 
-    def train(self, n_trial: int, n_split: int, scoring: str, model_key: str):
+    def train(self, n_trial: int, n_split: int, model_key: str, scoring: str):
         try:
             data = self.load_data()
             print(1)
@@ -124,7 +130,13 @@ class TrainService:
             print(2)
             model = RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
             model.fit(X_train, y_train)
-            self.model_save(model, model_key=model_key)
+            metrics = {
+                scoring: self.model_scoring(
+                    params=params, X_train=X_train, y_train=y_train, measure=scoring
+                )
+            }
+            print("metrics", metrics)
+            self.model_save(model, model_key, params, metrics)
             print(4)
         except Exception:
             return ServiceResult(AppException.LoadModel())
@@ -143,7 +155,9 @@ class PredictService:
     def load_model(self) -> bool:
         result = False
         try:
-            model = joblib.load(f"{self.model_key}.pkl")
+            mlflow.set_tracking_uri("http://127.0.0.1:5000")
+            mlflow.set_experiment("rf_test")
+            model = mlflow.sklearn.load_model(f"models:/{self.model_key}/Production")
             self.set_model_redisai(model)
             result = True
         except Exception:
