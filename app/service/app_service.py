@@ -21,7 +21,7 @@ from app.schemas.response import People
 from app.utils.app_exceptions import AppException
 from app.utils.service_result import ServiceResult
 
-from app.db.database import SessionLocal, engine
+from app.db.database import SessionLocal, engine, insert_data
 
 
 class TrainService:
@@ -119,6 +119,7 @@ class TrainService:
 
     def train(self, n_trial: int, n_split: int, model_key: str, scoring: str):
         try:
+            insert_data()
             data = self.load_data()
             print(1)
             data = self.preprocessing(data)
@@ -138,7 +139,8 @@ class TrainService:
             print("metrics", metrics)
             self.model_save(model, model_key, params, metrics)
             print(4)
-        except Exception:
+        except Exception as ex:
+            print("train error :", ex)
             return ServiceResult(AppException.LoadModel())
         return ServiceResult({"purpose": "Train", "context": "Done"})
 
