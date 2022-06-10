@@ -22,7 +22,7 @@ import time
 import sqlalchemy
 from sqlalchemy import create_engine
 import psycopg2
-from app.config import settings
+from coin.config import settings
 
 
 conn = psycopg2.connect(
@@ -234,7 +234,7 @@ class Coin_service:
 
         y_pred = model.predict(test_data)
         rescaled_pred = scaler_y.inverse_transform(np.array(y_pred).reshape(-1, 1))
-        return rescaled_pred
+        return rescaled_pred, model
 
     def confirm_result(self, y_test, y_pred):
         index = self.WINDOW_SIZE

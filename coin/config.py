@@ -7,8 +7,9 @@ class Settings(BaseSettings):
     DB_ID = "postgres"
     DB_PASSWORD = "postgres"
     DB_ADDRESS = "0.0.0.0"
-    ticker = "KRW-MTL"
+    ticker = "KRW-BTC"
     interval = "minutes240"
+    token = ""
 
     class Config:
         env_file = ".env"
