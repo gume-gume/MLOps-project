@@ -6,7 +6,7 @@ def add_coin():
     coin_service = Coin_service()
     ticker = settings.ticker
     df = coin_service.update_ohlcv(ticker, settings.interval)
-    coin_service.insert_df(df, ticker, exists="append")
+    coin_service.insert_df(df, ticker, exists="replace")
 
 
 add_coin()

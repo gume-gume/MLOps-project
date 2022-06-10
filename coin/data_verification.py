@@ -1,5 +1,5 @@
-from coin_service import cursor
-from config import settings
+from coin.coin_service import cursor
+from coin.config import settings
 import numpy as np
 import pandas as pd
 
