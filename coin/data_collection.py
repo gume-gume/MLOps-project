@@ -1,4 +1,4 @@
-from coin.coin_service import Coin_service
+from coin_service import Coin_service
 from coin.config import settings
 
 
