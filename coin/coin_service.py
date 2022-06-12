@@ -62,7 +62,6 @@ class Coin_service:
         ORDER BY TABLE_NAME ASC;"""
         )
         table_list = self.cursor.fetchall()
-
         if ticker in [t[0] for t in table_list]:
             try:
                 print(f"{ticker} table exist.....")
@@ -83,13 +82,11 @@ class Coin_service:
 
                 start_index = coin_dfs.index.get_loc(table[-1][0]) + 1
                 coin_dfs[start_index:]
-                print(coin_dfs.tail())
                 return coin_dfs
-            except Exception as ex:
-                print("update_ohlcv error:", ex)
+            except Exception:
                 pass
         else:
-            print(f"{ticker} table not exist....")
+
             coin_dfs = self.get_ohlcv(ticker, interval)
             return coin_dfs
 
@@ -109,15 +106,13 @@ class Coin_service:
                     df = pyupbit.get_ohlcv(ticker, interval=interval, to=df.index[0])
                     dfs.append(df)
                     time.sleep(0.2)
-                except Exception as ex:
-                    print("get_ohlcv error:", ex)
+                except Exception:
                     pass
             df = pd.concat(dfs)
             df = df.sort_index()
-            print(df.tail())
+            df.drop_duplicates(inplace=True)
             return df
-        except Exception as ex:
-            print("get_ohlcv error:", ex)
+        except Exception:
             pass
 
     def insert_df(self, df, ticker, exists="replace"):
@@ -125,8 +120,6 @@ class Coin_service:
         작성자 : 이대형
         csv data를 sql에 밀어 넣는 부분
         """
-
-        #
         try:
             df.to_sql(
                 name=ticker,
