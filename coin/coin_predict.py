@@ -1,10 +1,7 @@
 from coin.coin_service import Coin_service
-from coin.config import settings
-
-ticker = settings.ticker
 
 
-def train():
+def train(ticker):
     import mlflow
 
     cs = Coin_service()
@@ -20,8 +17,8 @@ def train():
     print(metrics)
 
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    mlflow.set_experiment("coin_experiment")
-    mlflow.start_run()
+    mlflow.set_experiment(f"{ticker}_experiment")
+    mlflow.start_run(tags={"version": "1.0.0"})
     mlflow.log_metrics(metrics)
-    mlflow.keras.log_model(model, "coin", registered_model_name="coin")
+    mlflow.keras.log_model(model, ticker, registered_model_name=ticker)
     mlflow.end_run()
