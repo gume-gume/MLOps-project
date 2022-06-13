@@ -1,18 +1,21 @@
+import sys
 from pydantic import BaseSettings
 from functools import lru_cache
 
+sys.path.append("/home/dahy949/airflow/project")
+
 
 class Settings(BaseSettings):
-    DB_NAME = "upbit"
-    DB_ID = "postgres"
-    DB_PASSWORD = "postgres"
-    DB_ADDRESS = "0.0.0.0"
-    ticker = "KRW-BTC"
-    interval = "minutes240"
-    token = ""
+    DB_NAME: str = "upbit"
+    DB_ID: str = "postgres"
+    DB_PASSWORD: str = "postgres"
+    DB_ADDRESS: str
+    interval: str = "minute240"
+    token: str
 
     class Config:
-        env_file = ".env"
+        env_file = "coin/.env"
+        print(env_file)
 
 
 @lru_cache()

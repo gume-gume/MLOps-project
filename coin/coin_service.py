@@ -1,3 +1,7 @@
+import os
+import math
+import time
+
 from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
@@ -15,13 +19,11 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import metrics
 import pandas as pd
 import numpy as np
-import os
 import pyupbit
-import math
-import time
 import sqlalchemy
 from sqlalchemy import create_engine
 import psycopg2
+
 from coin.config import settings
 
 
