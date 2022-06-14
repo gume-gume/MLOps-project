@@ -229,7 +229,7 @@ class Coin_service:
 
         y_pred = model.predict(test_data)
         rescaled_pred = scaler_y.inverse_transform(np.array(y_pred).reshape(-1, 1))
-        return rescaled_pred, model
+        return rescaled_pred, y_pred, model
 
     def confirm_result(self, y_test, y_pred):
         index = self.WINDOW_SIZE
