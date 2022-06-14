@@ -1,0 +1,25 @@
+name: fastapi-git-action-test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build --network host fastapi:v1
+
+  login:
+    runs-on: ubuntu-latest
+    step:
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with: 
+        username: ${{ secret.DOCKERHUB_USERNAME }}
+        password: ${{ secret.DOCKERHUB_TOKEN }}
