@@ -50,7 +50,7 @@ def coin_date_check(datetime_list, engine):
     continue_date = continue_date.apply(lambda x: x.date())
 
     if len(db_date) != len(continue_date):
-        print("결측 date")
+        print("결측")
         check_df = pd.concat([db_date, continue_date]).reset_index(drop=True)
         check_df.drop_duplicates(keep=False, inplace=True)
         check_df.reset_index(drop=True, inplace=True)
