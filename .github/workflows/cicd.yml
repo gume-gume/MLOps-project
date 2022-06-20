@@ -41,7 +41,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ''
           port: 22
           source: "docker-compose.yaml"
           target: "/home/dahy949"
@@ -50,6 +50,6 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ''
           port: 22
           script: "docker-compose pull && docker-compose up -d"
