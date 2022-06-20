@@ -1,11 +1,17 @@
+import sys
+
+sys.path.append("/home/tjsrb63/project")
 from app.db.database import SessionLocal
 from fastapi import APIRouter
-from app.schemas.request import IncomeBody
+from app.schemas.request import IncomeBody, ModelName
 from app.schemas.response import Item, TrainDone
 import redisai as rai
+import pyupbit
 from app.service.app_service import TrainService, PredictService
 from app.utils.service_result import handle_result
 from app.config import settings
+from coin.coin_predict import predict_coin
+
 
 router = APIRouter()
 
@@ -36,3 +42,10 @@ def produce_model(n_trial: int, n_split: int, scoring: str, model_key: str):
 def predict_income(item: IncomeBody, model_key: str):
     result = PredictService(client, model_key).predict(item)
     return handle_result(result)
+
+
+@router.post("/coin/predict")
+def predict_coin(ticker: ModelName):
+    coin_df = pyupbit.get_ohlcv(ticker, interval="minute240", count=20)
+    result = predict_coin(ticker, coin_df)
+    return result
