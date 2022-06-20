@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/docker-memo:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fastapi:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           source: "docker-compose.yaml"
-          target: "/home/tjsrb63"
+          target: "/home/dahy949"
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
