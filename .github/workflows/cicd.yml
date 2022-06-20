@@ -2,7 +2,7 @@ name: ci-cd-pipeline
 on:
   push:
     branches:
-      - add_docs
+      - add_docs 
 jobs:
 
   build-image:
