@@ -30,7 +30,7 @@ jobs:
 #       -
 #         name: Image digest
 #         run: echo ${{ steps.docker_build.outputs.digest }}
-  cd-pipeline:
+  cd-pipeline: 
 #     needs: build-image
     name: continuos deploy
     runs-on: ubuntu-latest
