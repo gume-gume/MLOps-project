@@ -41,7 +41,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ec2-user
+          username: ${{ secrets.REMOTE_SSH_ID }}
           key: ${{ secrets.PRIVATE_KEY }}
           port: 22
           source: "docker-compose.yaml"
