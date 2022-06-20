@@ -4,8 +4,9 @@ on:
     branches:
       - main
 jobs:
-  build-image:
 
+  build-image:
+    needs: run-test-code
     runs-on: ubuntu-latest
     steps:
       -
