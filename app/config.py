@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     DB_TABLE = "people_incomes"
     DB_ID = "postgres"
     DB_PASSWORD = "postgres"
-    DB_ADDRESS = "localhost"
-    REDIS_ADDRESS = "localhost"
+    DB_ADDRESS = "172.26.0.7"
+    REDIS_ADDRESS = "172.26.0.10"
     REDIS_PORT = 6379
     REDIS_health_check_interval = 30
 
