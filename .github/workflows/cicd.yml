@@ -4,15 +4,7 @@ on:
     branches:
       - main
 jobs:
-  run-test-code:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - run: pip install -r requirements.dev.txt
-      - run: pytest
+
   build-image:
     needs: run-test-code
     runs-on: ubuntu-latest

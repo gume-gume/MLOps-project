@@ -1,0 +1,96 @@
+version: "3.9"
+services:
+  fastapi:
+    image: gumegume/fastapi:172
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://172.26.0.6:9000
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlflow_db
+    ports:
+      - 8000:8000
+
+    restart: always
+    networks:
+      default_bridge:
+        ipv4_address: 172.26.0.5
+
+    depends_on:
+      - db
+      - s3
+
+  s3:
+    image:  quay.io/minio/minio
+    restart: unless-stopped
+    command: minio server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_volume:/data
+    networks:
+      default_bridge:
+        ipv4_address: 172.26.0.6
+
+  db:
+    image: postgres:13
+    restart: unless-stopped
+    container_name: postgresql
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlflow_db
+
+    volumes:
+      - db_volume:/var/lib/postgres
+    networks:
+      default_bridge:
+        ipv4_address: 172.26.0.7
+
+  mlflow:
+    container_name: tracker_mlflow
+    image: gumegume/mlflow:1.1.0
+    restart: always
+    ports:
+      - 5000:5000
+    networks:
+      default_bridge:
+        ipv4_address: 172.26.0.9
+    environment:
+      - MLFLOW_S3_ENDPOINT_URL=http://172.26.0.6:9000
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=my-region
+    depends_on:
+      - s3
+      - db
+    command: mlflow server —backend-store-uri postgresql://postgres:postgres@172.26.0.7/mlflow_db —default-artifact-root s3://mlflow —host 0.0.0.0
+
+  redisai:
+    image: redislabs/redisai
+    ports:
+      - 6379:6379
+
+    restart: always
+    networks:
+      default_bridge:
+        ipv4_address: 172.26.0.10
+
+networks:
+  default_bridge:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.0.0/16
+
+
+volumes:
+  db_volume:
+  minio_volume:
