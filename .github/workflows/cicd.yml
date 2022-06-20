@@ -52,4 +52,4 @@ jobs:
           username: ${{ secrets.REMOTE_SSH_ID }}
           key: ${{ secrets.PROXY_KEY }}
           port: 22
-          script: "docker-compose pull && docker-compose up -d"
+          script: "docker-compose down && docker-compose up -d"
