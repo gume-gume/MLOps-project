@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from enum import Enum
 
 
 class IncomeBody(BaseModel):
@@ -35,3 +36,9 @@ class MakeModel(BaseModel):
     n_trial: int
     n_split: int
     scoring: str
+
+
+class ModelName(str, Enum):
+    BTC = ("KRW-BTC",)
+    ETH = ("KRW-ETH",)
+    ADA = "KRW-ADA"
