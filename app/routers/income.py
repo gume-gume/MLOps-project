@@ -1,17 +1,17 @@
 import sys
 
-sys.path.append("/home/tjsrb63/project")
+sys.path.append("/home/dahy949/project")
+
 from app.db.database import SessionLocal
 from fastapi import APIRouter
 from app.schemas.request import IncomeBody, ModelName
-from app.schemas.response import Item, TrainDone
+from app.schemas.response import Item, TrainDone, Coin_pred
 import redisai as rai
 import pyupbit
 from app.service.app_service import TrainService, PredictService
 from app.utils.service_result import handle_result
 from app.config import settings
 from coin.coin_predict import predict_coin
-
 
 router = APIRouter()
 
@@ -44,8 +44,8 @@ def predict_income(item: IncomeBody, model_key: str):
     return handle_result(result)
 
 
-@router.post("/coin/predict")
-def predict_coin(ticker: ModelName):
+@router.post("/coin/predict", response_model=Coin_pred)
+def predict_coins(ticker: ModelName):
     coin_df = pyupbit.get_ohlcv(ticker, interval="minute240", count=20)
     result = predict_coin(ticker, coin_df)
-    return result
+    return handle_result(result)

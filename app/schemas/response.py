@@ -44,6 +44,12 @@ class Item(BaseModel):
     context: Optional[str] = None
 
 
+class Coin_pred(BaseModel):
+
+    price: int
+    context: Optional[str] = None
+
+
 class ExceptionResponseModel(BaseModel):
     exception: str
     context: str
