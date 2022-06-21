@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "upbit"
     DB_ID: str = "postgres"
     DB_PASSWORD: str = "postgres"
-    DB_ADDRESS: str
+    DB_ADDRESS: str = "172.26.0.7"
     interval: str = "minute240"
     token: str
 
