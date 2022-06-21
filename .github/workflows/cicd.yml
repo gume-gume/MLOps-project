@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/docker-memo:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fastapi:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -41,15 +41,15 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.REMOTE_SSH_ID }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.PROXY_KEY }}
           port: 22
           source: "docker-compose.yaml"
-          target: "/home/ec2-user/"
+          target: "/home/dahy949"
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ec2-user
-          key: ${{ secrets.PRIVATE_KEY }}
+          username: ${{ secrets.REMOTE_SSH_ID }}
+          key: ${{ secrets.PROXY_KEY }}
           port: 22
           script: "docker-compose pull && docker-compose up -d"
