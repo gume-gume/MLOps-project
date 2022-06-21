@@ -71,7 +71,7 @@ services:
     depends_on:
       - s3
       - db
-    command: mlflow server —backend-store-uri postgresql://postgres:postgres@172.26.0.7/mlflow_db —default-artifact-root s3://mlflow —host 0.0.0.0
+    command: mlflow server --backend-store-uri postgresql://postgres:postgres@172.26.0.7/mlflow_db --default-artifact-root s3://mlflow --host 0.0.0.0
 
   redisai:
     image: redislabs/redisai
