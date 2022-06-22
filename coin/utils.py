@@ -1,5 +1,6 @@
 from slack_sdk import WebClient
 from datetime import datetime
+from mlflow.tracking import MlflowClient
 
 
 class SlackAlert:
@@ -36,3 +37,16 @@ log url : {msg.get('task_instance').log_url}
 ==============================
         """
         self.client.chat_postMessage(channel=self.channel, text=text)
+
+
+def get_production_model_uri(model_name):
+    client = MlflowClient(tracking_uri="http://172.26.0.9:5000")
+
+    filter_string = "name='{}'".format(model_name)
+    results = client.search_model_versions(filter_string)
+    for res in results:
+        if res.current_stage == "Production":
+            deploy_version = res.version
+
+    model_uri = client.get_model_version_download_uri(model_name, deploy_version)
+    return model_uri

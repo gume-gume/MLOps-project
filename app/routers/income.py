@@ -46,6 +46,6 @@ def predict_income(item: IncomeBody, model_key: str):
 
 @router.post("/coin/predict", response_model=Coin_pred)
 def predict_coins(ticker: ModelName):
-    coin_df = pyupbit.get_ohlcv(ticker, interval="minute240", count=20)
+    coin_df = pyupbit.get_ohlcv(ticker, interval="minute240")
     result = predict_coin(ticker, coin_df)
     return handle_result(result)

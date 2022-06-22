@@ -121,14 +121,12 @@ class TrainService:
         try:
             insert_data()
             data = self.load_data()
-            print(1)
             data = self.preprocessing(data)
             X_train, X_test, y_train, y_test = self.data_split(data)
             X_train, X_test = self.labeling(X_train, X_test)
             params = self.rf_optimization(
                 X_train, y_train, n_trials=n_trial, n_splits=n_split, measure=scoring
             )
-            print(2)
             model = RandomForestClassifier(**params, n_jobs=-1, random_state=1234)
             model.fit(X_train, y_train)
             metrics = {
@@ -136,9 +134,9 @@ class TrainService:
                     params=params, X_train=X_train, y_train=y_train, measure=scoring
                 )
             }
-            print("metrics", metrics)
+
             self.model_save(model, model_key, params, metrics)
-            print(4)
+
         except Exception as ex:
             print("train error :", ex)
             return ServiceResult(AppException.LoadModel())
