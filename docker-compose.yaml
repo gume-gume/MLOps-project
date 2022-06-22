@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   fastapi:
-    image: gumegume/fastapi:latest
+    image: gumegume/fastapi:2.0.2
     environment:
       MLFLOW_S3_ENDPOINT_URL: http://172.26.0.6:9000
       AWS_ACCESS_KEY_ID: minioadmin

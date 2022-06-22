@@ -46,8 +46,8 @@ class Item(BaseModel):
 
 class Coin_pred(BaseModel):
 
+    datetime: str
     price: int
-    context: Optional[str] = None
 
 
 class ExceptionResponseModel(BaseModel):

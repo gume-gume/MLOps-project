@@ -1,13 +1,16 @@
 import os
 import math
 import time
+import sys
 
+sys.path.append("/home/dahy949/airflow/project/coin")
 from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     mean_squared_log_error,
     r2_score,
 )
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
@@ -24,7 +27,7 @@ import sqlalchemy
 from sqlalchemy import create_engine
 import psycopg2
 
-from coin.config import settings
+from config import settings
 
 
 conn = psycopg2.connect(
@@ -43,12 +46,14 @@ engine = create_engine(
 
 class Coin_service:
     def __init__(self):
+        global engine
         self.conn = conn
 
         self.cursor = cursor
         self.engine = engine
         self.WINDOW_SIZE = 20
         self.BATCH_SIZE = 32
+        print("~~~~engine:", engine)
 
     def update_ohlcv(self, ticker, interval):
         """
@@ -161,7 +166,7 @@ class Coin_service:
             df[["open", "high", "low", "volume", "value"]]
         )
         df["close"] = scaler_y.fit_transform(df["close"].values.reshape(-1, 1))
-        return df, scaler_y
+        return df, scaler, scaler_y
 
     def split(self, df):
         x_train, x_test, y_train, y_test = train_test_split(
@@ -243,3 +248,6 @@ class Coin_service:
         r2 = r2_score(y_test, y_pred)
         metrics = {"mae": mae, "rmse": rmse, "msle": msle, "rmsle": rmsle, "r2": r2}
         return metrics
+
+
+# MLflow client 생성

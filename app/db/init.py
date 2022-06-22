@@ -1,15 +1,17 @@
 import sys
+
+sys.path.append("/home/dahy949/airflow/project")
 from psycopg2 import connect, extensions
 from minio import Minio
 from app.config import settings
 
-sys.path.append("/home/dahy949/airflow/project")
+
 DB_ID = settings.DB_ID
 DB_PASSWORD = settings.DB_PASSWORD
 DB_PORT = 5432
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
-MINIO_ADDRESS = "localhost"
+MINIO_ADDRESS = "172.26.0.6"
 MINIO_PORT = 9000
 
 
@@ -33,7 +35,7 @@ def create_db(DB_NAME):
         database="postgres",
         user=DB_ID,
         password=DB_PASSWORD,
-        host="127.0.0.1",
+        host="172.26.0.7",
         port=DB_PORT,
     )
     cursor = conn.cursor()
@@ -51,7 +53,7 @@ def create_db(DB_NAME):
 
 if __name__ == "__main__":
     create_db("income_db")
-    create_db("airlfow_db")
+    create_db("airflow_db")
     create_db("upbit")
 
     create_bk("upbit")
