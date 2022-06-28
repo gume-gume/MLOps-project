@@ -4,7 +4,6 @@ from functools import lru_cache
 
 sys.path.append("/home/dahy949/airflow/project")
 
-
 class Settings(BaseSettings):
     DB_NAME: str = "upbit"
     DB_ID: str = "postgres"
@@ -21,6 +20,5 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings():
     return Settings()
-
 
 settings = get_settings()
