@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     DB_ADDRESS: str = "172.26.0.7"
     interval: str = "minute240"
     token: str
-
+    tracking_uri: str = "http://172.26.0.9:5000"
     class Config:
         env_file = "coin/.env"
         print(env_file)

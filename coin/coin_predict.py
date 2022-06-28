@@ -10,7 +10,7 @@ import tensorflow as tf
 from coin_service import Coin_service
 from app.utils import service_result
 from coin.utils import get_production_model_uri
-
+from config import settings
 
 def make_dataset(data, label, window_size=20):
     feature_list = []
@@ -31,7 +31,7 @@ def train(ticker):
     rescaled_pred, y_pred, model = cs.run_model(train_data, test_data, scaler_y)
     metrics = cs.confirm_result(y_test, y_pred)
 
-    mlflow.set_tracking_uri("http://172.26.0.9:5000")
+    mlflow.set_tracking_uri(settings.tracking_uri)
     mlflow.set_experiment(f"{ticker}_experiment")
     mlflow.start_run(tags={"version": "1.0.0"})
     mlflow.log_metrics(metrics)
@@ -44,7 +44,7 @@ def train(ticker):
 def predict_coin(ticker, coin_df):
     model_uri = get_production_model_uri(ticker)
     run_id = model_uri.split("/")[-3]
-    mlflow.set_tracking_uri("http://172.26.0.9:5000")
+    mlflow.set_tracking_uri(settings.tracking_uri)
     mlflow.set_experiment(f"{ticker}_experiment")
     model = mlflow.keras.load_model(f"models:/{ticker}/Production")
     logged_model = f"runs:/{run_id}/scaler"

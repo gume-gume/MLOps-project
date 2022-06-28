@@ -9,10 +9,10 @@ from app.config import settings
 DB_ID = settings.DB_ID
 DB_PASSWORD = settings.DB_PASSWORD
 DB_PORT = 5432
-MINIO_ACCESS_KEY = "minioadmin"
-MINIO_SECRET_KEY = "minioadmin"
-MINIO_ADDRESS = "172.26.0.6"
-MINIO_PORT = 9000
+MINIO_ACCESS_KEY = settings.MINIO_ACCESS_KEY
+MINIO_SECRET_KEY =settings.MINIO_SECRET_KEY
+MINIO_ADDRESS =settings.MINIO_ADDRESS
+MINIO_PORT = settings.MINIO_PORT
 
 
 def create_bk(bucket_name):
@@ -35,7 +35,7 @@ def create_db(DB_NAME):
         database="postgres",
         user=DB_ID,
         password=DB_PASSWORD,
-        host="172.26.0.7",
+        host=settings.DB_ADDRESS,
         port=DB_PORT,
     )
     cursor = conn.cursor()

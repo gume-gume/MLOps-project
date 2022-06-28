@@ -22,7 +22,7 @@ from app.utils.app_exceptions import AppException
 from app.utils.service_result import ServiceResult
 
 from app.db.database import SessionLocal, engine, insert_data
-
+from config import settings
 
 class TrainService:
     """
@@ -109,7 +109,7 @@ class TrainService:
         return scores[measure]
 
     def model_save(self, model, model_key, params, metrics):
-        mlflow.set_tracking_uri("http://172.26.0.9:5000")
+        mlflow.set_tracking_uri(settings.tracking_uri)
         mlflow.set_experiment("rf_test")
         mlflow.start_run()
         mlflow.log_params(params)
@@ -155,7 +155,7 @@ class PredictService:
     def load_model(self) -> bool:
         result = False
         try:
-            mlflow.set_tracking_uri("http://172.26.0.9:5000")
+            mlflow.set_tracking_uri(settings.tracking_uri)
             mlflow.set_experiment("rf_test")
             model = mlflow.sklearn.load_model(f"models:/{self.model_key}/Production")
             self.set_model_redisai(model)
